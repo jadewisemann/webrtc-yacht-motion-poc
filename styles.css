@@ -1,0 +1,60 @@
+:root { color-scheme: dark; font-family: Inter, Pretendard, system-ui, sans-serif; background:#090b12; color:#f7f8fb; }
+* { box-sizing:border-box; }
+body { margin:0; min-height:100vh; background:radial-gradient(circle at 20% 0%,#202a4d 0,transparent 38%),#090b12; }
+button,input { font:inherit; }
+select { font:inherit; }
+button { cursor:pointer; }
+button:disabled { cursor:not-allowed; opacity:.38; }
+.shell { width:min(900px,calc(100% - 32px)); margin:auto; padding:52px 0 72px; }
+header { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; margin-bottom:26px; }
+.eyebrow { color:#8ca2ff; letter-spacing:.16em; font-size:.72rem; font-weight:800; margin:0 0 10px; }
+h1 { font-size:clamp(2.8rem,8vw,5.4rem); letter-spacing:-.065em; line-height:.9; margin:0; }
+.subtitle { color:#a4aaba; margin:18px 0 0; }
+.status-card,.connection-panel,.game-card,.log-card { background:rgba(20,24,37,.84); border:1px solid #2b3145; box-shadow:0 20px 70px #0006; backdrop-filter:blur(18px); }
+.status-card { border-radius:18px; padding:14px 18px; display:flex; align-items:center; gap:11px; min-width:150px; }
+.status-card small { display:block; color:#8c93a6; font-size:.7rem; }
+.status-card strong { display:block; margin-top:2px; }
+.status-dot { width:11px; height:11px; border-radius:50%; background:#687084; box-shadow:0 0 0 5px #6870841f; }
+.status-dot.connecting { background:#ffbf69; box-shadow:0 0 0 5px #ffbf6920; }
+.status-dot.connected { background:#49dfa2; box-shadow:0 0 0 5px #49dfa220; }
+.connection-panel { border-radius:22px; padding:22px; margin-bottom:18px; }
+.connection-panel label { display:block; font-size:.76rem; color:#9299ad; font-weight:700; margin-bottom:9px; }
+.room-row { display:grid; grid-template-columns:1fr auto auto; gap:10px; }
+input { width:100%; color:#fff; background:#0c0f18; border:1px solid #363d54; border-radius:12px; padding:12px 15px; text-transform:uppercase; font-weight:800; letter-spacing:.12em; outline:none; }
+input:focus { border-color:#7188ed; box-shadow:0 0 0 3px #7188ed22; }
+.connection-panel p { color:#858da1; font-size:.82rem; margin:12px 2px 0; }
+.qr-panel{display:flex;align-items:center;gap:16px;margin-top:18px;padding:14px;border-radius:16px;background:#f5f7ff;color:#171b29}.qr-panel[hidden]{display:none}.qr-panel img{width:132px;height:132px}.qr-panel strong{display:block}.qr-panel p{max-width:480px;margin:8px 0 0;color:#51596d;overflow-wrap:anywhere}
+button { border:0; border-radius:12px; font-weight:750; padding:12px 17px; transition:.18s transform,.18s background; }
+button:hover:not(:disabled) { transform:translateY(-1px); }
+.secondary { color:#e6e9f5; background:#2a3043; }
+.secondary:hover { background:#353d56; }
+.game-card { border-radius:28px; padding:28px; }
+.game-meta { display:grid; grid-template-columns:repeat(3,1fr); padding-bottom:22px; border-bottom:1px solid #30364a; }
+.game-meta div { padding-left:18px; border-left:1px solid #30364a; }
+.game-meta div:first-child { padding-left:0; border-left:0; }
+.game-meta span { display:block; color:#888fa3; font-size:.72rem; margin-bottom:5px; }
+.game-meta strong { font-size:1rem; }
+.game-meta b { color:#90a4ff; font-size:1.25rem; }
+.dice-board { display:grid; grid-template-columns:repeat(5,1fr); gap:13px; margin:36px 0; }
+.die { position:relative; aspect-ratio:1; border:2px solid #343b51; border-radius:22%; background:linear-gradient(145deg,#f8f9ff,#cfd4e7); color:#161a28; display:grid; place-items:center; padding:0; box-shadow:0 10px 24px #0005; }
+.die:hover:not(:disabled) { border-color:#8fa4ff; }
+.die.held { border-color:#93a7ff; transform:translateY(-8px); box-shadow:0 0 0 4px #788eff33,0 15px 30px #0007; }
+.die.held::after { content:'HOLD'; position:absolute; top:-23px; font-size:.62rem; letter-spacing:.12em; color:#9eb0ff; }
+.die-face { font-size:clamp(2rem,6vw,4.4rem); line-height:1; }
+.actions { display:grid; grid-template-columns:2fr 1fr; gap:12px; }
+.primary { color:#0e1324; background:#91a6ff; padding:15px; }
+.primary:hover:not(:disabled) { background:#adc0ff; }
+.ghost { color:#dce1f3; background:#262c3c; }
+.game-message { min-height:1.4em; text-align:center; color:#8d95aa; font-size:.85rem; margin:15px 0 0; }
+.log-card { border-radius:22px; margin-top:18px; padding:20px 22px; }
+.motion-panel{margin-top:18px;padding:24px;border-radius:26px;background:rgba(20,24,37,.9);border:1px solid #2b3145;box-shadow:0 20px 70px #0006}.motion-panel[hidden]{display:none}.motion-head{display:flex;justify-content:space-between;align-items:center;gap:20px}.motion-head h2{margin:0;font-size:1.35rem}.motion-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.motion-actions select{color:#e9ecf7;background:#0c0f18;border:1px solid #363d54;border-radius:12px;padding:10px 13px}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0 14px}.metric-grid div{padding:15px;border-radius:15px;background:#0c101a;border:1px solid #293047}.metric-grid span,.metric-grid small{display:block;color:#7f889f;font-size:.68rem}.metric-grid strong{font-size:1.7rem;letter-spacing:-.04em;margin-right:5px}.metric-grid small{display:inline}.chart-wrap{position:relative;height:220px;padding:12px;border-radius:16px;background:#0a0d15;border:1px solid #293047}.chart-wrap canvas{width:100%;height:100%}.legend{position:absolute;top:10px;right:13px;display:flex;gap:10px;font-size:.65rem;color:#939bae}.legend span::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}.legend .accel::before{background:#62e6ac}.legend .rotation::before{background:#8fa4ff}.legend .energy::before{background:#ffb86b}.legend .threshold::before{background:#ff667a}.timeline-head{display:flex;justify-content:space-between;align-items:center;margin-top:22px}.timeline-head h3{font-size:.85rem;text-transform:uppercase;letter-spacing:.08em}.timeline-head div{display:flex;gap:15px;color:#7f889f;font-size:.72rem}.timeline-head b{color:#dce2f4}.throw-timeline{padding:0;margin:0;list-style:none;max-height:230px;overflow:auto}.throw-timeline li{display:grid;grid-template-columns:42px 105px 70px 48px 1fr;align-items:center;gap:8px;padding:10px;border-top:1px solid #293047;font-size:.75rem}.throw-timeline li>strong{color:#ffb86b}.throw-timeline li>time{color:#8992a7}.throw-timeline li>b{font-size:1rem;color:#fff}.throw-timeline li>small{color:#6f7990}.throw-timeline .empty{display:block;color:#707990}.log-card li[data-type="throw"]{color:#ffbf75}.log-card li[data-type="error"]{color:#ff7184}
+.log-title { display:flex; align-items:center; justify-content:space-between; }
+.log-title h2 { font-size:.9rem; margin:0; }
+.log-title button { padding:5px 8px; color:#81899d; background:transparent; font-size:.75rem; }
+#eventLog { max-height:145px; overflow:auto; margin:15px 0 0; padding:0; list-style:none; color:#8f97aa; font-family:ui-monospace,monospace; font-size:.76rem; }
+#eventLog li { border-top:1px solid #282e40; padding:7px 0; }
+#eventLog time { color:#5f6981; margin-right:9px; }
+@media (max-width:650px) { header{display:block}.status-card{margin-top:24px;width:max-content}.room-row{grid-template-columns:1fr 1fr}.room-row input{grid-column:1/-1}.game-card{padding:20px}.dice-board{gap:7px}.die{border-radius:16px}.game-meta{font-size:.85rem}.shell{padding-top:32px} }
+body.controller-mode .log-card{display:none} body.controller-mode .game-card{border-color:#7188ed} body.controller-mode .die{touch-action:manipulation} body.controller-mode .primary{min-height:64px;font-size:1.08rem}
+@media(max-width:650px){body.controller-mode .shell{width:calc(100% - 20px);padding:20px 0}body.controller-mode .connection-panel{padding:16px}body.controller-mode .dice-board{margin:32px 0}body.controller-mode .actions{grid-template-columns:1fr}body.controller-mode .ghost{min-height:48px}}
+@media(max-width:650px){.motion-head{display:block}.motion-actions{display:grid;grid-template-columns:1fr 1fr;margin-top:15px}.motion-actions select{grid-column:1/-1}.metric-grid{grid-template-columns:1fr 1fr}.metric-grid strong{font-size:1.45rem}.chart-wrap{height:180px}.throw-timeline li{grid-template-columns:35px 1fr 55px}.throw-timeline li span,.throw-timeline li small{display:none}body.controller-mode .motion-panel{padding:16px}body.controller-mode .chart-wrap{height:160px}}
