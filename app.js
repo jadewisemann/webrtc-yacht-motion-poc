@@ -10,15 +10,19 @@ const presets = {
   normal:{label:'보통',energy:18,accel:15,rotation:130,cooldown:1000},
   powerful:{label:'강하게',energy:28,accel:23,rotation:210,cooldown:1150},
 };
+const APP_VERSION='turn-relay-v2';
 const peerConfig={
   iceServers:[
     {urls:'stun:stun.l.google.com:19302'},
     {urls:'stun:stun.cloudflare.com:3478'},
     {urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:80?transport=tcp',username:'openrelayproject',credential:'openrelayproject'},
     {urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},
     {urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'},
+    {urls:'turns:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'},
   ],
   iceCandidatePoolSize:10,
+  iceTransportPolicy:'relay',
 };
 
 let role=null, peer=null, conn=null, room=null, motionEnabled=false, lastThrow=0, throwSequence=0;
@@ -62,6 +66,14 @@ function applyAction(action,throwMeta=null){
 function attachConnection(connection){
   if(conn&&conn!==connection){try{conn.close();}catch{}}
   conn=connection;
+  const pc=connection.peerConnection;
+  let relayCandidateSeen=false;
+  if(pc){
+    pc.addEventListener('icecandidate',event=>{if(!event.candidate)return;const type=event.candidate.type||event.candidate.candidate.match(/ typ (\w+)/)?.[1]||'unknown';const protocol=event.candidate.protocol||event.candidate.candidate.split(' ')[2]||'?';if(type==='relay')relayCandidateSeen=true;log(`ICE 후보: ${type} · ${protocol}`);});
+    pc.addEventListener('icecandidateerror',event=>log(`TURN 오류 ${event.errorCode||''}: ${event.errorText||event.url||'candidate failed'}`,'error'));
+    pc.addEventListener('iceconnectionstatechange',()=>{log(`ICE 상태: ${pc.iceConnectionState}`);if(pc.iceConnectionState==='failed')setStatus(relayCandidateSeen?'TURN 협상 실패':'TURN 후보 없음');});
+    setTimeout(()=>{if(!connected()&&!relayCandidateSeen)log('TURN relay 후보를 아직 받지 못했습니다. 네트워크가 TURN 443을 차단할 수 있습니다.','error');},6000);
+  }
   conn.on('open',()=>{clearTimeout(reconnectTimer);connectionAttempts=0;setStatus('P2P 연결됨','connected');ui.connectionHelp.textContent='모션과 게임 데이터가 WebRTC로 직접 전송됩니다.';log('DataChannel 연결 완료 (TURN fallback 활성)');if(role==='host')send({type:'STATE_SYNC',state});renderGame();});
   conn.on('data',message=>{
     if(role==='host'&&message.type==='ACTION')applyAction(message.action);
@@ -98,7 +110,7 @@ async function hostRoom(){
   room=ui.roomId.value.trim().toUpperCase(); if(!room)return;
   role='host';ui.roleLabel.textContent='PC 화면';document.body.classList.remove('controller-mode');setStatus('방 생성 중','connecting');
   const p=createPeer(`yacht-motion-${room.toLowerCase()}`);
-  p.on('open',async()=>{setStatus('컨트롤러 대기','connecting');log(`방 생성: ${room}`);await showQr();});
+  p.on('open',async()=>{setStatus('컨트롤러 대기','connecting');log(`방 생성: ${room} · ${APP_VERSION} · TURN relay 강제`);await showQr();});
   p.on('connection',attachConnection); ui.joinButton.disabled=true;ui.roomId.disabled=true;ui.motionPanel.hidden=false;
 }
 
