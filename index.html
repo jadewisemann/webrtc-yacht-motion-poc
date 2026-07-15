@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yacht Dice · WebRTC PoC</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <div>
+          <p class="eyebrow">WEBRTC DATA CHANNEL POC</p>
+          <h1>Yacht Dice</h1>
+          <p class="subtitle">PC는 게임 화면으로, 휴대폰은 무선 컨트롤러로 사용하세요.</p>
+        </div>
+        <div class="status-card">
+          <span id="statusDot" class="status-dot"></span>
+          <div><small>연결 상태</small><strong id="connectionStatus">대기 중</strong></div>
+        </div>
+      </header>
+
+      <section class="connection-panel">
+        <label for="roomId">방 코드</label>
+        <div class="room-row">
+          <input id="roomId" maxlength="12" value="YACHT01" autocomplete="off" />
+          <button id="hostButton" class="secondary">PC 게임 화면</button>
+          <button id="joinButton" class="secondary">휴대폰 컨트롤러</button>
+        </div>
+        <p id="connectionHelp">PC에서 게임 화면을 연 뒤, 휴대폰에서 같은 방 코드로 연결하세요.</p>
+        <div id="qrPanel" class="qr-panel" hidden>
+          <img id="qrImage" alt="휴대폰 컨트롤러 연결 QR 코드" />
+          <div><strong>휴대폰으로 스캔</strong><p id="qrUrl"></p></div>
+        </div>
+      </section>
+
+      <section class="game-card">
+        <div class="game-meta">
+          <div><span>역할</span><strong id="roleLabel">미정</strong></div>
+          <div><span>남은 굴림</span><strong><b id="rollsLeft">3</b> / 3</strong></div>
+          <div><span>동기화</span><strong id="revisionLabel">rev. 0</strong></div>
+        </div>
+
+        <div id="diceBoard" class="dice-board" aria-label="주사위 영역"></div>
+
+        <div class="actions">
+          <button id="rollButton" class="primary" disabled>주사위 굴리기</button>
+          <button id="resetButton" class="ghost" disabled>새 라운드</button>
+        </div>
+        <p id="gameMessage" class="game-message">연결하면 게임을 시작할 수 있습니다.</p>
+      </section>
+
+      <section id="motionPanel" class="motion-panel" hidden>
+        <div class="motion-head">
+          <div><p class="eyebrow">MOTION TELEMETRY</p><h2>던짐 디버거</h2></div>
+          <div class="motion-actions">
+            <select id="sensitivity" aria-label="던짐 감도">
+              <option value="gentle">부드럽게</option>
+              <option value="normal" selected>보통</option>
+              <option value="powerful">강하게</option>
+            </select>
+            <button id="motionPermission" class="secondary">모션 센서 켜기</button>
+            <button id="simulateThrow" class="ghost">던짐 시뮬레이션</button>
+          </div>
+        </div>
+        <div class="metric-grid">
+          <div><span>가속도</span><strong id="accelValue">0.0</strong><small>m/s²</small></div>
+          <div><span>회전</span><strong id="rotationValue">0</strong><small>°/s</small></div>
+          <div><span>던짐 에너지</span><strong id="energyValue">0.0</strong><small>score</small></div>
+          <div><span>샘플링</span><strong id="sampleRate">0</strong><small>Hz</small></div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="motionCanvas" aria-label="실시간 모션 그래프"></canvas>
+          <div class="legend"><span class="accel">가속도</span><span class="rotation">회전</span><span class="energy">에너지</span><span class="threshold">판정선</span></div>
+        </div>
+        <div class="timeline-head"><h3>Throw timeline</h3><div><span>감지 <b id="throwCount">0</b>회</span><span>최근 <b id="lastThrowAt">—</b></span></div></div>
+        <ol id="throwTimeline" class="throw-timeline"><li class="empty">휴대폰을 던지는 동작을 하면 정확한 판정 시점이 기록됩니다.</li></ol>
+      </section>
+
+      <section class="log-card">
+        <div class="log-title"><h2>이벤트 로그</h2><button id="clearLog">지우기</button></div>
+        <ol id="eventLog"></ol>
+      </section>
+    </main>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
