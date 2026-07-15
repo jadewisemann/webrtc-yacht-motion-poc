@@ -10,7 +10,7 @@ const presets = {
   normal:{label:'보통',energy:18,accel:15,rotation:130,cooldown:1000},
   powerful:{label:'강하게',energy:28,accel:23,rotation:210,cooldown:1150},
 };
-const APP_VERSION='turn-relay-v2';
+const APP_VERSION='turn-diagnostic-v2';
 const peerConfig={
   iceServers:[
     {urls:'stun:stun.l.google.com:19302'},
@@ -22,7 +22,7 @@ const peerConfig={
     {urls:'turns:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'},
   ],
   iceCandidatePoolSize:10,
-  iceTransportPolicy:'relay',
+  iceTransportPolicy:'all',
 };
 
 let role=null, peer=null, conn=null, room=null, motionEnabled=false, lastThrow=0, throwSequence=0;
@@ -110,7 +110,7 @@ async function hostRoom(){
   room=ui.roomId.value.trim().toUpperCase(); if(!room)return;
   role='host';ui.roleLabel.textContent='PC 화면';document.body.classList.remove('controller-mode');setStatus('방 생성 중','connecting');
   const p=createPeer(`yacht-motion-${room.toLowerCase()}`);
-  p.on('open',async()=>{setStatus('컨트롤러 대기','connecting');log(`방 생성: ${room} · ${APP_VERSION} · TURN relay 강제`);await showQr();});
+  p.on('open',async()=>{setStatus('컨트롤러 대기','connecting');log(`방 생성: ${room} · ${APP_VERSION}`);await showQr();});
   p.on('connection',attachConnection); ui.joinButton.disabled=true;ui.roomId.disabled=true;ui.motionPanel.hidden=false;
 }
 
