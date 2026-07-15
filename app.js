@@ -10,8 +10,19 @@ const presets = {
   normal:{label:'보통',energy:18,accel:15,rotation:130,cooldown:1000},
   powerful:{label:'강하게',energy:28,accel:23,rotation:210,cooldown:1150},
 };
+const peerConfig={
+  iceServers:[
+    {urls:'stun:stun.l.google.com:19302'},
+    {urls:'stun:stun.cloudflare.com:3478'},
+    {urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'},
+  ],
+  iceCandidatePoolSize:10,
+};
 
 let role=null, peer=null, conn=null, room=null, motionEnabled=false, lastThrow=0, throwSequence=0;
+let reconnectTimer=null, connectionAttempts=0;
 let state={dice:[1,1,1,1,1],held:[false,false,false,false,false],rollsLeft:3,revision:0};
 let samples=[], remoteSamples=[], sampleTimes=[], renderQueued=false, lastSampleSent=0;
 
@@ -49,23 +60,38 @@ function applyAction(action,throwMeta=null){
 }
 
 function attachConnection(connection){
+  if(conn&&conn!==connection){try{conn.close();}catch{}}
   conn=connection;
-  conn.on('open',()=>{setStatus('P2P 연결됨','connected');ui.connectionHelp.textContent='모션과 게임 데이터가 WebRTC로 직접 전송됩니다.';log('DataChannel 연결 완료');if(role==='host')send({type:'STATE_SYNC',state});renderGame();});
+  conn.on('open',()=>{clearTimeout(reconnectTimer);connectionAttempts=0;setStatus('P2P 연결됨','connected');ui.connectionHelp.textContent='모션과 게임 데이터가 WebRTC로 직접 전송됩니다.';log('DataChannel 연결 완료 (TURN fallback 활성)');if(role==='host')send({type:'STATE_SYNC',state});renderGame();});
   conn.on('data',message=>{
     if(role==='host'&&message.type==='ACTION')applyAction(message.action);
     if(role==='host'&&message.type==='MOTION')receiveMotion(message.sample);
     if(role==='host'&&message.type==='THROW')handleRemoteThrow(message.event);
     if(role==='guest'&&message.type==='STATE_SYNC'){state=message.state;renderGame();navigator.vibrate?.(35);}
   });
-  conn.on('close',()=>{setStatus('연결 종료');renderGame();});
-  conn.on('error',error=>log(`채널 오류: ${error.message}`,'error'));
+  conn.on('close',()=>{setStatus(role==='guest'?'PC 재연결 중':'컨트롤러 대기','connecting');renderGame();if(role==='guest')scheduleGuestRetry();});
+  conn.on('error',error=>{log(`채널 오류: ${error.message}`,'error');if(role==='guest')scheduleGuestRetry();});
 }
 
 function createPeer(id){
-  peer?.destroy(); peer=new Peer(id,{debug:1});
-  peer.on('error',error=>{setStatus('연결 오류');log(`${error.type}: ${error.message}`,'error');});
-  peer.on('disconnected',()=>setStatus('재연결 중','connecting'));
+  clearTimeout(reconnectTimer);peer?.destroy(); peer=new Peer(id,{debug:1,config:peerConfig});
+  peer.on('error',error=>{setStatus(`연결 오류 · ${error.type}`);log(`${error.type}: ${error.message}`,'error');if(role==='guest'&&['webrtc','network','socket-error','server-error','peer-unavailable'].includes(error.type))scheduleGuestRetry();});
+  peer.on('disconnected',()=>{setStatus('시그널링 재연결 중','connecting');log('PeerServer 연결 끊김 · 자동 재접속','error');reconnectTimer=setTimeout(()=>{if(peer&&!peer.destroyed&&peer.disconnected){try{peer.reconnect();}catch{}}},1200);});
   return peer;
+}
+
+function connectToHost(){
+  if(role!=='guest'||!peer||peer.destroyed||peer.disconnected||connected())return;
+  connectionAttempts++;
+  setStatus(`PC 연결 시도 ${connectionAttempts}`,'connecting');
+  log(`호스트 연결 시도 #${connectionAttempts}`);
+  attachConnection(peer.connect(`yacht-motion-${room.toLowerCase()}`,{reliable:true,serialization:'json'}));
+}
+
+function scheduleGuestRetry(){
+  if(role!=='guest'||connected())return;
+  clearTimeout(reconnectTimer);
+  reconnectTimer=setTimeout(()=>{if(peer?.disconnected){try{peer.reconnect();}catch{}}else connectToHost();},Math.min(1500+connectionAttempts*500,5000));
 }
 
 async function hostRoom(){
@@ -79,7 +105,7 @@ async function hostRoom(){
 function joinRoom(){
   room=ui.roomId.value.trim().toUpperCase();if(!room)return;
   role='guest';ui.roleLabel.textContent='모션 컨트롤러';document.body.classList.add('controller-mode');setStatus('연결 중','connecting');
-  const p=createPeer(); p.on('open',()=>attachConnection(p.connect(`yacht-motion-${room.toLowerCase()}`,{reliable:true,serialization:'json'})));
+  const p=createPeer(); p.on('open',connectToHost);
   ui.hostButton.disabled=true;ui.roomId.disabled=true;ui.motionPanel.hidden=false;
 }
 
